@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, Text
+from sqlalchemy import Column, Integer, String, ForeignKey,Text
 from sqlalchemy.orm import declarative_base, relationship
 
 Base = declarative_base()
@@ -15,24 +15,21 @@ class User(Base):
 
 
 class RecipeCategory(Base):
-    __tablename__ = 'recipe_categories'
-
+    __tablename__ = "recipe_categories"
     id = Column(Integer, primary_key=True)
-    name = Column(String)  # название категории рецепта
+    name = Column(String, unique=True)
+
+    dishes = relationship("TypeofDish", back_populates="category")
 
 
-class Recipe(Base):
-    __tablename__ = 'recipes'
-
+class TypeofDish(Base):
+    __tablename__ = "type_of_dishes"
     id = Column(Integer, primary_key=True)
     name = Column(String)
-    category_id = Column(Integer, ForeignKey('recipe_categories.id'))  # связь с таблицей категорий рецептов
-    ingredients = Column(String)
-    steps = Column(String)
-    image_url = Column(String)
     recipe_url = Column(String)
+    category_id = Column(Integer, ForeignKey("recipe_categories.id"))
 
-    category = relationship('RecipeCategory')  # связь с моделью RecipeCategory
+    category = relationship("RecipeCategory", back_populates="dishes")
 
 
 class UserRecipe(Base):
@@ -48,13 +45,3 @@ class UserRecipe(Base):
     user = relationship('User')  # связь с моделью User
 
 
-def main():
-    # подключение к базе данных
-    database_url = 'postgresql://postgres:89080620743@localhost:5432/RussianFoodRecipe'
-    engine = create_engine(database_url)
-
-    Base.metadata.create_all(engine)  # Создание таблиц
-    # Base.metadata.drop_all(engine)  # Удаление таблиц
-
-if __name__ == '__main__':
-    main()  # запуск основной функции
